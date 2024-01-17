@@ -1,7 +1,12 @@
+import os
 import numpy as np
 import torch
 from IPython.display import clear_output
 from tqdm import tqdm
+
+def mkdir(path):
+    if not os.path.exists(path): os.makedirs(path)
+    return path
 
 class SurrGradSpike(torch.autograd.Function):
     """
@@ -60,8 +65,10 @@ class SNNModel():
         self.alpha = float(np.exp(-self.step_length/tau_syn))
         self.beta = float(np.exp(-self.step_length/tau_mem))
         
-        # weight_scale = 0.2
-        weight_scale = 10
+        self.mem_spike_threshold = 1
+        
+        weight_scale = 0.2
+        # weight_scale = 10
         
         self.v1 = torch.empty((self.hidden_units, self.hidden_units), device=self.device, dtype=self.dtype, requires_grad=True) # recurrent connections matrix
         torch.nn.init.normal_(self.v1, mean=0.0, std=weight_scale/np.sqrt(self.hidden_units))
@@ -80,13 +87,11 @@ class SNNModel():
         out = torch.zeros((self.batch_size, self.hidden_units), device=self.device, dtype=self.dtype)
         # h1_from_input = torch.einsum("abc,cd->abd", (inputs, w1))
         for t in range(self.num_timesteps):
-            h1 = inputs[:,t,:] + torch.einsum("ab,bc->ac", (out, self.v1))
-            mthr = mem-1.0
-            out = self.spike_fn(mthr)
-            rst = out.detach() # We do not want to backprop through the reset
+            thresholded_mem = mem - self.mem_spike_threshold
+            out = self.spike_fn(thresholded_mem) # surrogate heaviside
 
-            new_syn = self.alpha * syn + h1
-            new_mem = (self.beta * mem + syn) * (1.0 - rst)
+            new_syn = self.alpha * syn + inputs[:,t,:] + torch.einsum("ab,bc->ac", (out, self.v1)) # input are unweighted
+            new_mem = (self.beta * mem + syn) * (self.mem_spike_threshold - out.detach()) # .detach() because we don't want to backprop through the reset
 
             mem_rec.append(mem)
             spk_rec.append(out)
@@ -103,7 +108,7 @@ class SNNModel():
         return torch.mean(torch.abs(x))
 
     def save_weights(self, epoch_num, path):
-        np.save(f'{path}/epoch{epoch_num}_v1_matrix.npy', self.v1.cpu().detach().numpy())
+        np.save(f'{mkdir(path)}/epoch{epoch_num}_v1_matrix.npy', self.v1.cpu().detach().numpy())
     
     def train(self, input_tensor, lr=1e-3, num_epochs=10, save_weights_path=None):
         
