@@ -128,6 +128,10 @@ def run():
         
     max_grad_norm = 1.0  # Define the maximum gradient norm threshold
 
+    # Save training config to the folder
+    with open(mkdir(weights_save_path)/'training_config.json', 'w') as f:
+        json.dump(training_config, f)
+    
     # TRAINING LOOP
 
     loss_hist = []
@@ -201,6 +205,6 @@ if __name__ == '__main__':
     dtype = torch.float32
     device = torch.device('cuda')
 
-    weights_save_path=Path.home()/f'RANCZLAB-NAS/iakov/produced/mnist_sequence_checkpoints'/f'sequences_{dataset_sampling_frequency}hz_{int(LIF_linear_features)}x{int(LIF_linear_features)}_matrix_class_{init_type}_{reset_mechanism}_reset_beta_{beta:.2f}'
+    weights_save_path=Path.home()/f'RANCZLAB-NAS/iakov/produced/mnist_sequence_checkpoints'/f'sequences_{dataset_sampling_frequency}hz_{int(LIF_linear_features)}x{int(LIF_linear_features)}_matrix_class_{init_type}_{reset_mechanism}_reset_beta_{beta:.2f}_scheduler_{scheduler_type}_epochstep_{scheduler_epoch_step}_gradclipp_{grad_clipping}'
     
     run()
