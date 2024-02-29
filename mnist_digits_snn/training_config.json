@@ -1,1 +1,0 @@
-{"dataset_sampling_frequency": 1000, "dataset_path": "/home/jupyter-ikharitonov/disk2", "dataset_file": "mnist_sequences_1000hz.npy", "batch_size": 20, "num_epochs": 100, "LIF_linear_features": 784, "reset_mechanism": "subtract", "init_type": "pretrained", "num_workers": 36, "learning_rate": 0.0005}
