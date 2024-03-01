@@ -10,7 +10,7 @@ class SNN1(nn.Module):
         self.dtype = dtype
 
         # self.fc1 = nn.Linear(28*28, 28*28)
-        self.lif1 = snn.RLeaky(beta=beta, linear_features=config.params["LIF_linear_features"], reset_mechanism=config.params["reset_mechanism"]) # also experiment with all_to_all and V (weights) parameters
+        self.lif1 = snn.RLeaky(beta=beta, linear_features=LIF_linear_features, reset_mechanism=reset_mechanism) # also experiment with all_to_all and V (weights) parameters
 
     def forward(self, x):
         spk1, mem1 = self.lif1.init_rleaky()
