@@ -21,12 +21,12 @@ def run():
 
     # Data ingest and network initialisation
     normalise_transform = NormaliseToZeroOneRange(dtype=dtype)
-    mnist_dataset = MNISTSequencesDataset(config.dirs["training"], config.params["LIF_linear_features"], transform=normalise_transform)
+    mnist_dataset = MNISTSequencesDataset(config.dirs["training"], config.params["LIF_linear_features"], ingest_numpy_dtype, ingest_torch_dtype, transform=normalise_transform)
     train_loader = DataLoader(mnist_dataset, batch_size=config.params["batch_size"], shuffle=True, num_workers=config.params["dataloader_num_workers"])
 
     config.data_shape = next(iter(train_loader)).shape
 
-    model = SNN1(num_steps=config.data_shape[1], beta=beta).to(device).to(dtype)
+    model = SNN1(num_steps=config.data_shape[1], beta=beta, LIF_linear_features=config.params["LIF_linear_features"], reset_mechanism=config.params["reset_mechanism"], dtype=dtype).to(device).to(dtype)
 
     # Initialisation of weights
     if config.params["init_type"] == 'pretrained' and config.params["LIF_linear_features"] == 28*28:
@@ -43,7 +43,7 @@ def run():
 
 
     # TRAINING LOOP
-    model, optimizer = config.iteration_begin_step(model, optimizer)
+    model, optimizer, checkpoint = config.iteration_begin_step(model, optimizer)
 
     loss_hist = []
     batch_loss = 0
