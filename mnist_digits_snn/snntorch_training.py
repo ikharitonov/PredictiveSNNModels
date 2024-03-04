@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from models import SNN1
+from models import get_model
 from datasets import MNISTSequencesDataset, NormaliseToZeroOneRange
 
 from SNNCustomConfig import SNNCustomConfig
@@ -15,9 +15,11 @@ def run():
 
     device = torch.device(config.params["torch_device"])
 
+    tau_syn = config.params["synaptic_time_constant_tao"]
     tao_mem = config.params["membrane_time_constant_tao"] # 10ms membrane time constant
     timestep = 1/config.params["dataset_sampling_frequency"]
     beta = np.exp(-timestep / tao_mem)
+    alpha = np.exp(-timestep / tau_syn)
 
     # Data ingest and network initialisation
     normalise_transform = NormaliseToZeroOneRange(dtype=dtype)
@@ -26,7 +28,8 @@ def run():
 
     config.data_shape = next(iter(train_loader)).shape
 
-    model = SNN1(num_steps=config.data_shape[1], beta=beta, LIF_linear_features=config.params["LIF_linear_features"], reset_mechanism=config.params["reset_mechanism"], dtype=dtype).to(device).to(dtype)
+    model_class = get_model(config.model_name)
+    model = model_class(num_steps=config.data_shape[1], beta=beta, alpha=alpha, LIF_linear_features=config.params["LIF_linear_features"], reset_mechanism=config.params["reset_mechanism"], dtype=dtype).to(device).to(dtype)
 
     # Initialisation of weights
     if config.params["init_type"] == 'pretrained' and config.params["LIF_linear_features"] == 28*28:
