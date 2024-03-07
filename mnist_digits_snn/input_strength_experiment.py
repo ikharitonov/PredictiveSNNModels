@@ -51,15 +51,14 @@ def run():
     loss_hist = []
     batch_loss = 0
 
-    DATA_MULTIPLIER = 1
-    epoch_counter = -1
+    # Define rheobase and input multipliers
+    rheobase_multiplier = 1
+    if config.params["rheobase_apply"] == "true": 
+        rheobase_multiplier = config.params["rheobase_multiplier"]
+        print(f"Applying rheobase multiplier = {rheobase_multiplier}")
+    input_multiplier = config.params["input_multiplier"]
 
     for epoch in range(config.start_epoch, config.params["epochs"]):
-        
-        epoch_counter += 1
-        if epoch_counter >= 5:
-            DATA_MULTIPLIER -= 0.1
-            epoch_counter = -1
         
         config.epoch_begin_step()
         model.train(True)
@@ -72,7 +71,7 @@ def run():
             optimizer.zero_grad(set_to_none=True)
 
             # Forward pass
-            spk_rec, mem_rec = model(data * DATA_MULTIPLIER)
+            spk_rec, mem_rec = model(data * rheobase_multiplier * input_multiplier)
 
             if config.params["loss_subtype"] == "preactivation": batch_loss = loss(mem_rec, torch.zeros_like(mem_rec)) # preactivation loss
             elif config.params["loss_subtype"] == "postactivation": batch_loss = loss(spk_rec, torch.zeros_like(mem_rec)) # postactivation loss
@@ -99,6 +98,6 @@ if __name__ == '__main__':
     dtype = torch.float32
     
     config = SNNCustomConfig(cli_args=sys.argv)
-    # config = SNNCustomConfig(model_name="SNN1", dataset_name="mnist_sequences_10hz", configuration_name="config1", continue_training=False)
+    # config = SNNCustomConfig(model_name="SNN1", dataset_name="mnist_sequences_250hz", configuration_name="config0_test", configuration_file="test.txt", continue_training=False)
 
     run()
