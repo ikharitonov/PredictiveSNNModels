@@ -5,6 +5,7 @@ class SNNCustomConfig(BaseConfig):
     def __init__(self, cli_args=None, model_name=None, dataset_name=None, configuration_name=None, configuration_file=None, continue_training=False):
 
         self.base_path = Path.home() / 'RANCZLAB-NAS/iakov/produced/mnist_sequence_checkpoints'
+        self.default_config_path = Path.home() / 'code/SensorymotorPredictiveModel/mnist_digits_snn/default_configs/snn_config.txt'
         
         super().__init__(cli_args, model_name, dataset_name, configuration_name, configuration_file, continue_training)
 
