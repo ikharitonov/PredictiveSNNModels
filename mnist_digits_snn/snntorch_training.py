@@ -70,7 +70,7 @@ def run():
 
             # gradient calculation and weight update
             batch_loss.backward()
-            if config.params["grad_clipping"] == "True": nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
+            if config.params["grad_clipping"] == "true": nn.utils.clip_grad_value_(model.parameters(), max_grad_norm)
             optimizer.step()
 
             loss_hist.append(batch_loss.item())
