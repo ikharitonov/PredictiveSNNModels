@@ -1,7 +1,7 @@
 # Modelling Repository: Sensorimotor Predictive Spiking Recurrent Networks
 
 ## Folders:
-__mnist_digits_snn__: main active project of SNN-replication of https://www.cell.com/patterns/fulltext/S2666-3899(22)00271-9
+__mnist_digits_snn__: main active project of SNN-replication of <a href=https://www.cell.com/patterns/fulltext/S2666-3899(22)00271-9>this paper</a>
 
 __sensorimotor_coupling_snn__: simpler task similar to the one faced by mice on the RPM
 
