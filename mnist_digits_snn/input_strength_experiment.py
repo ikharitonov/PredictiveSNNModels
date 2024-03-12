@@ -57,6 +57,8 @@ def run():
         rheobase_multiplier = config.params["rheobase_multiplier"]
         print(f"Applying rheobase multiplier = {rheobase_multiplier}")
     input_multiplier = config.params["input_multiplier"]
+    print(f"Applying input multiplier = {input_multiplier}")
+    print(f"Combined multiplier = {rheobase_multiplier * input_multiplier}")
 
     for epoch in range(config.start_epoch, config.params["epochs"]):
         
@@ -75,6 +77,9 @@ def run():
 
             if config.params["loss_subtype"] == "preactivation": batch_loss = loss(mem_rec, torch.zeros_like(mem_rec)) # preactivation loss
             elif config.params["loss_subtype"] == "postactivation": batch_loss = loss(spk_rec, torch.zeros_like(mem_rec)) # postactivation loss
+            elif config.params["loss_subtype"] == "preactivation_only_digits":
+                # TODO implement only digit loss gathering here
+                batch_loss = loss(spk_rec, torch.zeros_like(mem_rec))
 
             # gradient calculation and weight update
             batch_loss.backward()
