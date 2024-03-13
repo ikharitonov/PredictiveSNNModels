@@ -78,8 +78,14 @@ def run():
             if config.params["loss_subtype"] == "preactivation": batch_loss = loss(mem_rec, torch.zeros_like(mem_rec)) # preactivation loss
             elif config.params["loss_subtype"] == "postactivation": batch_loss = loss(spk_rec, torch.zeros_like(mem_rec)) # postactivation loss
             elif config.params["loss_subtype"] == "preactivation_only_digits":
-                # TODO implement only digit loss gathering here
-                batch_loss = loss(spk_rec, torch.zeros_like(mem_rec))
+                collected_mem_rec = []
+                digit_presentation_duration = int(0.5 *config.params["dataset_sampling_frequency"])
+                i = -1 * digit_presentation_duration
+                for _ in range(10):
+                    i += config.params["dataset_sampling_frequency"]
+                    collected_mem_rec.append(mem_rec[:, i:i+digit_presentation_duration, :])
+                collected_mem_rec = torch.stack(collected_mem_rec, axis=0)
+                batch_loss = loss(collected_mem_rec, torch.zeros_like(collected_mem_rec))
 
             # gradient calculation and weight update
             batch_loss.backward()
