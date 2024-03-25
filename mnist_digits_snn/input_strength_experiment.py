@@ -29,7 +29,7 @@ def run():
     config.data_shape = next(iter(train_loader)).shape
 
     model_class = get_model(config.model_name)
-    model = model_class(num_steps=config.data_shape[1], beta=beta, alpha=alpha, LIF_linear_features=config.params["LIF_linear_features"], reset_mechanism=config.params["reset_mechanism"], dtype=dtype).to(device).to(dtype)
+    model = model_class(num_steps=config.data_shape[1], beta=beta, alpha=alpha, LIF_linear_features=config.params["LIF_linear_features"], reset_mechanism=config.params["reset_mechanism"], weight_init=config.params["weight_init"], dtype=dtype).to(device).to(dtype)
 
     # Initialisation of weights
     if config.params["init_type"] == 'pretrained' and config.params["LIF_linear_features"] == 28*28:
@@ -109,6 +109,6 @@ if __name__ == '__main__':
     dtype = torch.float32
     
     config = SNNCustomConfig(cli_args=sys.argv)
-    # config = SNNCustomConfig(model_name="SNN1", dataset_name="mnist_sequences_250hz", configuration_name="config0_test", configuration_file="test.txt", continue_training=False)
+    # config = SNNCustomConfig(model_name="SNN1", dataset_name="mnist_simplest_sequence", configuration_name="config1_rheo1", configuration_file="test.txt", continue_training=True)
 
     run()

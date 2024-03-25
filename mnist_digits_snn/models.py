@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import snntorch as snn
+import math
 
 def get_model(model_name):
     model_dict = {
@@ -14,13 +15,18 @@ def get_model(model_name):
 
 class SNN1(nn.Module):
     # Without the first Linear layer
-    def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, dtype):
+    def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, weight_init, dtype):
         super().__init__()
 
         self.num_steps = num_steps
         self.dtype = dtype
 
         self.lif1 = snn.RLeaky(beta=beta, linear_features=LIF_linear_features, reset_mechanism=reset_mechanism) # also experiment with all_to_all and V (weights) parameters
+        
+        if weight_init == 'normal':
+            stdv = 1. / math.sqrt(LIF_linear_features)
+            self.lif1.recurrent.weight.data.normal_(0,stdv)
+        
 
     def forward(self, x):
         spk1, mem1 = self.lif1.init_rleaky()
@@ -45,7 +51,7 @@ class SNN1(nn.Module):
     
 class SNN1syn(nn.Module):
     # Without the first Linear layer
-    def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, dtype):
+    def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, weight_init, dtype):
         super().__init__()
 
         self.num_steps = num_steps
@@ -80,7 +86,7 @@ class SNN1syn(nn.Module):
     
 class SNN2(nn.Module):
     # With the first Linear layer
-    def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, dtype):
+    def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, weight_init, dtype):
         super().__init__()
 
         self.num_steps = num_steps
@@ -113,7 +119,7 @@ class SNN2(nn.Module):
     
 class SNN2syn(nn.Module):
     # With the first Linear layer
-    def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, dtype):
+    def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, weight_init, dtype):
         super().__init__()
 
         self.num_steps = num_steps
