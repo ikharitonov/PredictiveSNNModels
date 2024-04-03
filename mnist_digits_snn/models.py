@@ -9,6 +9,7 @@ def get_model(model_name):
         "SNN1syn": SNN1syn,
         "SNN2": SNN2,
         "SNN2syn": SNN2syn,
+        "SNN1_Supervised_Extension": SNN1_Supervised_Extension,
         # "RNN1": RNN1
     }
     return model_dict[model_name]
@@ -154,6 +155,64 @@ class SNN2syn(nn.Module):
 
         return spk1_rec, mem1_rec
 
+
+class SNN1_Supervised_Extension(nn.Module):
+    # Without the first Linear layer
+    def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, weight_init, dtype):
+        super().__init__()
+
+        self.num_steps = num_steps
+        self.dtype = dtype
+
+        self.lif1 = snn.RLeaky(beta=beta, linear_features=LIF_linear_features, reset_mechanism=reset_mechanism) # also experiment with all_to_all and V (weights) parameters
+        self.fc2 = nn.Linear(LIF_linear_features, LIF_linear_features, bias=True)
+        self.lif2 = snn.Leaky(beta=beta)
+        self.fc_out = nn.Linear(LIF_linear_features, 10, bias=False)
+        self.lif_out = snn.Leaky(beta=beta)
+        
+        if weight_init == 'normal':
+            stdv = 1. / math.sqrt(LIF_linear_features)
+            self.lif1.recurrent.weight.data.normal_(0,stdv)
+        
+
+    def convert_to_tensor(self, lst):
+        lst = torch.stack(lst)
+        return torch.swapaxes(lst, 0, 1)
+    
+    def forward(self, x):
+        spk1, mem1 = self.lif1.init_rleaky()
+        mem2 = self.lif2.init_leaky()
+        mem_out = self.lif_out.init_leaky()
+        
+        spk1, mem1 = spk1.to(self.dtype), mem1.to(self.dtype)
+        mem2 = mem2.to(self.dtype)
+        mem_out = mem_out.to(self.dtype)
+
+        spk1_rec = []
+        mem1_rec = []
+        spk_out_rec = []
+        mem_out_rec = []
+
+        for step in range(self.num_steps):
+            spk1, mem1 = self.lif1(x[:,step,:], spk1, mem1)
+            fc2_out = self.fc2(spk1)
+            spk2, mem2 = self.lif2(fc2_out, mem2)
+            fc_out_out = self.fc_out(spk2)
+            spk_out, mem_out = self.lif_out(fc_out_out, mem_out)
+
+            spk1_rec.append(spk1)
+            mem1_rec.append(mem1)
+            spk_out_rec.append(spk_out)
+            mem_out_rec.append(mem_out)
+
+        # convert lists to tensors
+        spk1_rec = convert_to_tensor(spk1_rec)
+        mem1_rec = convert_to_tensor(mem1_rec)
+        spk_out_rec = convert_to_tensor(spk_out_rec)
+        mem_out_rec = convert_to_tensor(mem_out_rec)
+
+        return spk_out_rec, mem_out_rec, spk1_rec, mem1_rec
+    
 # RNN from EmergentPredictiveCoding repository
 # class Network(torch.nn.Module):
 #     """

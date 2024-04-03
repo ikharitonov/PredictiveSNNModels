@@ -11,7 +11,9 @@ class SNNCustomConfig(BaseConfig):
 
         data_path = Path.home() / 'RANCZLAB-NAS/iakov/produced/'
         self.dirs = {
-            "training": data_path / f'{self.dataset_name}.npy'
+            "training": data_path / f'{self.dataset_name}.npy',
+            "training_1to1_targets": data_path / f'{self.dataset_name}_1to1_targets.npy',
+            "training_predictive_targets": data_path / f'{self.dataset_name}_predictive_targets.npy',
         }
         self.weights_save_dir = self.base_path / self.training_name
         self.pretrained_weights_path = Path.home() / 'RANCZLAB-NAS/iakov/produced/mnist_classification_weights_matrix.npy'

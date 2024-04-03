@@ -1,4 +1,5 @@
 dataset_sampling_frequency:10
+training_targets_type:"training_1to1_targets"
 LIF_linear_features:784
 reset_mechanism:"subtract"
 init_type:"pure"
