@@ -165,7 +165,7 @@ class SNN1_Supervised_Extension(nn.Module):
         self.dtype = dtype
 
         self.lif1 = snn.RLeaky(beta=beta, linear_features=LIF_linear_features, reset_mechanism=reset_mechanism) # also experiment with all_to_all and V (weights) parameters
-        self.fc2 = nn.Linear(LIF_linear_features, LIF_linear_features, bias=True)
+        self.fc2 = nn.Linear(LIF_linear_features, LIF_linear_features, bias=False)
         self.lif2 = snn.Leaky(beta=beta)
         self.fc_out = nn.Linear(LIF_linear_features, 10, bias=False)
         self.lif_out = snn.Leaky(beta=beta)

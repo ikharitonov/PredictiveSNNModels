@@ -28,7 +28,7 @@ def run():
     mnist_dataset = MNISTSequencesSupervisedDataset(config.dirs["training"], config.dirs[targets_type], config.params["LIF_linear_features"], ingest_numpy_dtype, ingest_torch_dtype, transform=normalise_transform)
     train_loader = DataLoader(mnist_dataset, batch_size=config.params["batch_size"], shuffle=True, num_workers=config.params["dataloader_num_workers"])
 
-    config.data_shape = next(iter(train_loader)).shape
+    config.data_shape = next(iter(train_loader))[0].shape
 
     model_class = get_model(config.model_name)
     model = model_class(num_steps=config.data_shape[1], beta=beta, alpha=alpha, LIF_linear_features=config.params["LIF_linear_features"], reset_mechanism=config.params["reset_mechanism"], weight_init=config.params["weight_init"], dtype=dtype).to(device).to(dtype)
@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
     dtype = torch.float32
     
-    config = SNNCustomConfig(cli_args=sys.argv)
-    # config = SNNCustomConfig(model_name="SNN1", dataset_name="mnist_simplest_sequence", configuration_name="config1_rheo1", configuration_file="test.txt", continue_training=True)
+    # config = SNNCustomConfig(cli_args=sys.argv)
+    config = SNNCustomConfig(model_name="SNN1_Supervised_Extension", dataset_name="mnist_sequences_250hz", configuration_name="config1", configuration_file="/home/ikharitonov/Desktop/config1.txt", continue_training=False)
 
     run()
