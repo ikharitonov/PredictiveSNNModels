@@ -6,6 +6,7 @@ grad_clipping:"true"
 grad_clipping_max_norm:1
 membrane_time_constant_tao:0.03
 synaptic_time_constant_tao:0.03
+weight_init:"default"
 rheobase_multiplier:0.13
 rheobase_apply:"true"
 input_multiplier:1
