@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 from tqdm import tqdm
+from pathlib import Path
 
 import torch
 import torch.nn as nn
@@ -24,7 +25,7 @@ def run():
     # Data ingest and network initialisation
     targets_type = config.params["training_targets_type"]
     normalise_transform = NormaliseToZeroOneRange(dtype=dtype)
-    mnist_dataset = MNISTSequencesDataset(config.dirs["training"], config.dirs[targets_type], config.params["LIF_linear_features"], ingest_numpy_dtype, ingest_torch_dtype, transform=normalise_transform)
+    mnist_dataset = MNISTSequencesSupervisedDataset(config.dirs["training"], config.dirs[targets_type], config.params["LIF_linear_features"], ingest_numpy_dtype, ingest_torch_dtype, transform=normalise_transform)
     train_loader = DataLoader(mnist_dataset, batch_size=config.params["batch_size"], shuffle=True, num_workers=config.params["dataloader_num_workers"])
 
     config.data_shape = next(iter(train_loader)).shape

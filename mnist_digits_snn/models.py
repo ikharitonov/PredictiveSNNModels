@@ -206,10 +206,10 @@ class SNN1_Supervised_Extension(nn.Module):
             mem_out_rec.append(mem_out)
 
         # convert lists to tensors
-        spk1_rec = convert_to_tensor(spk1_rec)
-        mem1_rec = convert_to_tensor(mem1_rec)
-        spk_out_rec = convert_to_tensor(spk_out_rec)
-        mem_out_rec = convert_to_tensor(mem_out_rec)
+        spk1_rec = self.convert_to_tensor(spk1_rec)
+        mem1_rec = self.convert_to_tensor(mem1_rec)
+        spk_out_rec = self.convert_to_tensor(spk_out_rec)
+        mem_out_rec = self.convert_to_tensor(mem_out_rec)
 
         return spk_out_rec, mem_out_rec, spk1_rec, mem1_rec
     
