@@ -43,7 +43,10 @@ def run():
     model.fc2.weight.requires_grad_(False)
     model.fc_out.weight.requires_grad_(False)
 
-    loss = nn.L1Loss()
+    if config.params["loss_type"] == "L1Loss": 
+        loss = nn.L1Loss()
+    elif config.params["loss_type"] == "CrossEntropyLoss":
+        loss = nn.CrossEntropyLoss()
     optimizer = config.get_optimizer(model)
     scheduler = config.get_scheduler(optimizer)
         
@@ -105,7 +108,7 @@ if __name__ == '__main__':
 
     dtype = torch.float32
     
-    # config = SNNCustomConfig(cli_args=sys.argv)
-    config = SNNCustomConfig(model_name="SNN1_Supervised_Extension", dataset_name="mnist_sequences_250hz", configuration_name="config1", configuration_file="/home/ikharitonov/Desktop/config1.txt", continue_training=False)
+    config = SNNCustomConfig(cli_args=sys.argv)
+    # config = SNNCustomConfig(model_name="SNN1_Supervised_Extension", dataset_name="mnist_sequences_250hz", configuration_name="config2", configuration_file="/home/ikharitonov/Desktop/config2.txt", continue_training=False)
 
     run()
