@@ -85,7 +85,7 @@ class MNISTSequencesSupervisedDataset(Dataset):
         if self.transform:
             sample = self.transform(sample)
         
-        target = torch.tensor(self.targets[idx])
+        target = torch.tensor(self.targets[idx], dtype=self.ingest_torch_dtype)
 
         return sample, target
 

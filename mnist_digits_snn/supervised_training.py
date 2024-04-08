@@ -85,7 +85,7 @@ def run():
             model_outputs = model(data * rheobase_multiplier * input_multiplier)
             spk_out_rec, mem_out_rec, spk1_rec, mem1_rec = model_outputs
 
-            batch_loss = loss(spk_out_rec, targets)
+            batch_loss = loss(spk_out_rec, targets.to(spk_out_rec.dtype))
 
             # gradient calculation and weight update
             batch_loss.backward()
