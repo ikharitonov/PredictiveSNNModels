@@ -10,6 +10,7 @@ def get_model(model_name):
         "SNN2": SNN2,
         "SNN2syn": SNN2syn,
         "SNN1_Supervised_Extension": SNN1_Supervised_Extension,
+        "SNN1_frozen_bias": SNN1_frozen_bias,
         # "RNN1": RNN1
     }
     return model_dict[model_name]
@@ -50,6 +51,45 @@ class SNN1(nn.Module):
 
         return spk1_rec, mem1_rec
     
+class SNN1_frozen_bias(nn.Module):
+    # Without the first Linear layer
+    def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, weight_init, dtype):
+        super().__init__()
+
+        self.num_steps = num_steps
+        self.dtype = dtype
+
+        self.lif1 = snn.RLeaky(beta=beta, linear_features=LIF_linear_features, reset_mechanism=reset_mechanism) # also experiment with all_to_all and V (weights) parameters
+        
+        if weight_init == 'normal':
+            stdv = 1. / math.sqrt(LIF_linear_features)
+            self.lif1.recurrent.weight.data.normal_(0,stdv)
+
+        # Freeze the bias
+        self.lif1.recurrent.bias.requires_grad_(False)
+        
+
+    def forward(self, x):
+        spk1, mem1 = self.lif1.init_rleaky()
+        spk1, mem1 = spk1.to(self.dtype), mem1.to(self.dtype)
+
+        spk1_rec = []
+        mem1_rec = []
+
+        for step in range(self.num_steps):
+            spk1, mem1 = self.lif1(x[:,step,:], spk1, mem1)
+
+            spk1_rec.append(spk1)
+            mem1_rec.append(mem1)
+
+        # convert lists to tensors
+        spk1_rec = torch.stack(spk1_rec)
+        mem1_rec = torch.stack(mem1_rec)
+        spk1_rec = torch.swapaxes(spk1_rec, 0, 1)
+        mem1_rec = torch.swapaxes(mem1_rec, 0, 1)
+
+        return spk1_rec, mem1_rec
+
 class SNN1syn(nn.Module):
     # Without the first Linear layer
     def __init__(self, num_steps, beta, alpha, LIF_linear_features, reset_mechanism, weight_init, dtype):
